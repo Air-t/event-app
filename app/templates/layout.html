@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <!-- Bootstrap CSS -->
+      <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+      <link rel="stylesheet" href="{% static 'css/fontawesome.css' %}" integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+      <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <title>exapp</title>
+  </head>
+  <body>
+    <nav class="navbar fixed-top navbar-dark bg-dark">
+        <div class="d-flex flex-row bd-highlight mb-3">
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggleExternalContent" aria-controls="navbarToggleExternalContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span id="nav-icon" class="navbar-toggler-icon"></span>
+          </button>
+          <a class="navbar-brand" href="{% url 'user:home' %}"><img class="light" src="{% static 'webfonts/home-solid.svg' %}" alt="[H]" width="24" height="24"></a>
+        </div>
+        <div class="d-flex flex-row-reverse bd-highlight mb-3">
+          {% if request.user.username %}
+            <form method="post" style="display:inline!important;" action="{% url 'user:logout' %}">
+              {% csrf_token %}
+              <button class="btn btn-outline-secondary" name="action" value="logout" type="submit"><img class="light" src="{% static 'webfonts/sign-out-alt-solid.svg' %}" alt="[X]" width="24" height="24"></button>
+            </form>
+            <a class="navbar-brand" href="{% url 'user:user' %}"><img class="light" src="{% static 'webfonts/user-regular.svg' %}" alt="" width="24" height="24"> {{ request.user.username }}</a>
+          {% else %}
+            <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
+            <a class="navbar-brand" href="{% url 'user:login' %}">Login</a>
+          {% endif %}
+        </div>
+    </nav>
+
+    {% if request.user.is_teacher %}
+      <div class="navbar">
+        <div id="mySidenav" class="sidenav">
+          <a href="{% url 'core:exams' %}">Exams</a>
+          <a href="#">Invite</a>
+          <a href="#">Make Available</a>
+          <a href="#">Groups</a>
+        </div>
+      </div>
+    {% elif request.user.is_student %}
+      <div class="navbar">
+        <div id="mySidenav" class="sidenav">
+          <a href="{% url 'core:student-exams' %}">Exams</a>
+          <a href="#">Schedule</a>
+          <a href="#">Grades</a>
+        </div>
+      </div>
+    {% else %}
+    <div class="navbar">
+      <div id="mySidenav" class="sidenav">
+        <a href="{% url 'contact' %}"><img class="icon" src="{% static 'webfonts/address-book-regular.svg' %}" alt="[C]" width="20" height="20">  Contact</a>
+        <a href="{% url 'feedback' %}"><img class="icon" src="{% static 'webfonts/file-signature-solid.svg' %}" alt="[F]" width="20" height="20">  Feedback</a>
+        <a href="{% url 'about' %}"><img class="icon" src="{% static 'webfonts/info-circle-solid.svg' %}" alt="[I]" width="20" height="20">  About</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Add all page content inside this div if you want the side nav to push page content to the right (not used if you only want the sidenav to sit on top of the page -->
+    <div id="main">
+      <div class="container">
+        <div id="main-container" class="container">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-{{ message.tags }} shadow" data-dismiss="alert">
+                {{ message }}
+              </div>
+            {% endfor %}
+          {% endif %}
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="{% static 'js/jquery-3.3.1.slim.min.js' %}" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="{% static 'js/popper.min.js' %}" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script src="{% static 'js/app.js' %}"></script>
+    <script src="{% static 'js/question.js' %}"></script>
+  </body>
+</html>
