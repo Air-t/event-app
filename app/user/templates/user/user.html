@@ -1,0 +1,24 @@
+{% extends 'layout.html' %}}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<h4>Change Profile Info</h4>
+<br>
+<form method="post">
+  {% csrf_token %}
+  {{ profile_form|crispy }}
+  <br>
+  <button class="btn btn-secondary" type="submit" name="action" value="profile">Change Info</button>
+</form>
+<hr>
+<h4>Change Password</h4>
+<br>
+<form method="post">
+  {% csrf_token %}
+  {{ password_form|crispy }}
+  <br>
+  <button class="btn btn-secondary" type="submit" name="action" value="password">Change Password</button>
+</form>
+<hr>
+
+{% endblock  %}

@@ -2,14 +2,9 @@ from datetime import datetime
 
 from django.db import models
 from django.core.validators import MinValueValidator
-from django.contrib.auth.models import User
+from user.models import User, UserProfile
 
 from events.utils import now_plus_15_min
-
-
-class UserProfile(models.Model):
-    """Extends base django user"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
 
 TICKET_TYPES = (
@@ -29,9 +24,9 @@ PAYMENT_TYPE = {
 
 class Event(models.Model):
     """Event model"""
-    name = models.CharField(unique=True)
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    name = models.CharField(unique=True, max_length=256)
+    start_date = models.DateTimeField(blank=True)
+    end_date = models.DateTimeField(blank=True)
 
     def __str__(self):
         return self.name
@@ -47,9 +42,10 @@ class EventTicket(models.Model):
     """Event ticket model"""
     price_bought = models.FloatField(validators=[MinValueValidator(0.0)])
     date_bought = models.DateTimeField(default=datetime.now)
+    is_payed = models.BooleanField(default=False)
 
     seat = models.OneToOneField(EventSeat, on_delete=models.CASCADE)
-    user = models.OneToOneField(UserProfile, default=None, blank=True)
+    user = models.OneToOneField(User, default=None, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.type}, quantity: {self.quantity}"
@@ -59,11 +55,19 @@ class TicketReservation(models.Model):
     """Reservation model"""
     date_created = models.DateTimeField(default=datetime.now)
     date_expired = models.DateTimeField(default=now_plus_15_min)
-    is_confirmed = models.BooleanField(default=False)
 
     ticket = models.OneToOneField(EventTicket, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.ticket.user.username}: expires in: {(self.date_expired - self.date_created)}"
+
 
 class Payment(models.Model):
+    """Payment model"""
     type = models.IntegerField(choices=PAYMENT_TYPE, default=0)
     date_payed = models.DateTimeField(default=datetime.now)
+
+    ticket = models.OneToOneField(EventTicket, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.type

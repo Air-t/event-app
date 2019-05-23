@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load crispy_forms_tags %}
+
+<div class="card text-center card-shadow">
+  <div class="card-body">
+    <h2 class="card-title">Please let us improve!</h2>
+    <p class="card-text">Below you can leave us a comment what should be improved or just what is your feeling about our app.</p>
+    <hr>
+    <form method="post">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <button class="btn btn-primary" type="submit" name="action" value="submit">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
