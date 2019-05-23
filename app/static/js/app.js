@@ -14,6 +14,7 @@ function closeNav() {
 
 $(document).ready(function() {
 
+    // side nav open/close toggle funtionality
     var clickState = 0;
     var btn = document.querySelector('.navbar-toggler-icon');
 
@@ -30,7 +31,18 @@ $(document).ready(function() {
       }
     });
 
-});
+    // datepicker functionality
+    $("#datetimepicker1").datetimepicker({
+      format: 'DD/MM/YYYY HH:mm',
+    });
+    $("#datetimepicker2").datetimepicker({
+      format: 'DD/MM/YYYY HH:mm',
+    });
 
-// default page setup
-// openNav();
+    // confirm delete on click while deleting objects
+    $('div.card').on('click', '.delete', function(e){
+      var x = confirm("Are you sure you want to delete?");
+      return (x) ? true : e.preventDefault()
+    })
+
+});

@@ -45,9 +45,13 @@
           </form>
           <a class="navbar-brand" href="{% url 'user:user' %}"><img class="light" src="{% static 'webfonts/user-regular.svg' %}" alt="" width="24" height="24"> {{ request.user.username }}</a>
         {% else %}
-          <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
           <a class="navbar-brand" href="{% url 'user:login' %}">Login</a>
+          <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
         {% endif %}
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search Event" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><img class="light" src="{% static 'webfonts/search-solid.svg' %}" width="20" height="20"></button>
+        </form>
       </div>
     </nav>
 
@@ -56,12 +60,15 @@
       <div class="navbar">
         <div id="mySidenav" class="sidenav">
           <a href="{% url 'events:owner-events' %}">Events</a>
-          <a href="#">Search Event</a>
+          <a href="{% url 'events:events-search' %}">Search Event</a>
         </div>
       </div>
     {% else %}
     <div class="navbar">
       <div id="mySidenav" class="sidenav">
+        <a href="{% url 'events:events' %}">Events</a>
+        <a href="{% url 'events:events-search' %}">Search Event</a>
+        <hr>
         <a href="{% url 'contact' %}"><img class="icon" src="{% static 'webfonts/address-book-regular.svg' %}" alt="[C]" width="20" height="20">  Contact</a>
         <a href="{% url 'feedback' %}"><img class="icon" src="{% static 'webfonts/file-signature-solid.svg' %}" alt="[F]" width="20" height="20">  Feedback</a>
         <a href="{% url 'about' %}"><img class="icon" src="{% static 'webfonts/info-circle-solid.svg' %}" alt="[I]" width="20" height="20">  About</a>

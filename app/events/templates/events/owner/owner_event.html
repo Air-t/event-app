@@ -22,21 +22,12 @@
           </div>
         </div>
         <br>
+        {{ form.city|as_crispy_field }}
+        <br>
         <button class="btn btn-primary" type="submit" name="action" value="commit">Create</button>
       </form>
     </div>
   </div>
-
-  <script>
-    $(function () {
-      $("#datetimepicker1").datetimepicker({
-        format: 'DD/MM/YYYY HH:mm',
-      });
-      $("#datetimepicker2").datetimepicker({
-        format: 'DD/MM/YYYY HH:mm',
-      });
-    });
-  </script>
 
   {% if object_list %}
     <div class="card card-shadow">
@@ -44,7 +35,7 @@
         {% for object in object_list %}
           <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ object.name }}
             <span>
-              <form class="form-inline" method="post" action="" style="display:inline!important;">
+              <form class="form-inline" method="post" action="{% url 'events:owner-event-delete' pk=object.id %}" style="display:inline!important;">
                 {% csrf_token %}
                 <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
               </form>
@@ -54,6 +45,5 @@
       </ul>
     </div>
   {% endif %}
-
 
 {% endblock content %}

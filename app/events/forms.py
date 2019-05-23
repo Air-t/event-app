@@ -4,6 +4,21 @@ from django.utils.translation import gettext_lazy as _
 from .models import Event
 
 
+DATE_PICKER_WIDGET_FROM = forms.DateTimeInput(attrs={
+            'class': 'form-control datetimepicker-input text-muted',
+            'data-target': '#datetimepicker1',
+            'width': '100px',
+            'placeholder': 'Start date',
+        })
+DATE_PICKER_WIDGET_TO = forms.DateTimeInput(attrs={
+            'class': 'form-control datetimepicker-input text-muted',
+            'data-target': '#datetimepicker1',
+            'width': '100px',
+            'placeholder': 'End date',
+        })
+DATE_INPUT_FORMATS = ['%d/%m/%Y %H:%M']
+
+
 class FeedbackForm(forms.Form):
     """Form to handle users feedback"""
     comment = forms.CharField(widget=forms.Textarea(attrs={'cols': 40,
@@ -14,38 +29,42 @@ class FeedbackForm(forms.Form):
 
 class EventForm(forms.ModelForm):
     """Form to create new Exam instance"""
-
     start_date = forms.DateTimeField(
-        input_formats=['%d/%m/%Y %H:%M'],
-        widget=forms.DateTimeInput(attrs={
-            'class': 'form-control datetimepicker-input text-muted',
-            'data-target': '#datetimepicker1',
-            'width': '100px',
-            'placeholder': 'Start date',
-        })
+        input_formats=DATE_INPUT_FORMATS,
+        widget=DATE_PICKER_WIDGET_FROM
     )
 
     end_date = forms.DateTimeField(
-        input_formats=['%d/%m/%Y %H:%M'],
-        widget=forms.DateTimeInput(attrs={
-            'class': 'form-control datetimepicker-input text-muted',
-            'data-target': '#datetimepicker1',
-            'width': '100px',
-            'placeholder': 'End date',
-        })
+        input_formats=DATE_INPUT_FORMATS,
+        widget=DATE_PICKER_WIDGET_TO
     )
 
     class Meta:
         model = Event
-        fields = ['name', 'start_date', 'end_date']
+        fields = ['name', 'start_date', 'end_date', 'city']
         labels = {
             'name': '',
-            'start_date': 'start date',
-            'end_date': 'start date',
+            'city': '',
 
         }
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': _('Event name goes here.'),
                                            'error_messages': _('This event already exists.'),
                                            }),
+            'city': forms.TextInput(attrs={'placeholder': _('City'),
+                                           }),
         }
+
+
+class EventSearchForm(forms.Form):
+    name = forms.CharField(required=False, help_text='Name', label='')
+    city = forms.CharField(required=False, help_text='City', label='')
+    from_date = forms.DateTimeField(
+        input_formats=DATE_INPUT_FORMATS,
+        widget=DATE_PICKER_WIDGET_FROM,
+    )
+
+    to_date = forms.DateTimeField(
+        input_formats=DATE_INPUT_FORMATS,
+        widget=DATE_PICKER_WIDGET_TO
+    )

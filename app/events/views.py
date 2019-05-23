@@ -2,15 +2,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.base import View
-from django.views.generic.edit import CreateView, UpdateView, FormView
+from django.views.generic.edit import CreateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
+from django.core.cache import cache
 from django.conf import settings
 from django.urls import reverse_lazy
 
 from .models import Event
-from .forms import FeedbackForm, EventForm
+from .forms import FeedbackForm, EventForm, EventSearchForm
 from .mixins import LoginRequiredOwnerMixin
 
 
@@ -46,7 +47,8 @@ class EventOwnerView(LoginRequiredOwnerMixin, UserPassesTestMixin, ListView):
         return context
 
 
-class ExamCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
+class EventCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
+    """Handles event create view"""
     model = Event
     form_class = EventForm
     success_url = reverse_lazy('events:owner-events')
@@ -61,9 +63,60 @@ class ExamCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
         return redirect('events:owner-events')
 
 
-# Info section
+class EventSearchView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    """Handles search event view"""
+    def get(self, request):
+        return render(request, 'events/event_search.html', {'form': EventSearchForm()})
 
+    def post(self, request):
+        form = EventSearchForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data.get('name')
+            city = form.cleaned_data.get('city')
+            from_date = form.cleaned_data.get('from_date')
+            to_date = form.cleaned_data.get('to_date')
+
+            # cache enable
+            if cache.get('event_list') is not None:
+                events = cache.get('event_list')
+            else:
+                events = Event.objects.all().order_by('name')
+
+            if name:
+                events = events.filter(name__icontains=name)
+
+            if city:
+                events = events.filter(city__icontains=city)
+
+            # if year_from or year_to:
+            #     if year_from and year_to:
+            #         movies = movies.filter(year__gte=year_from).filter(year__lte=year_to)
+            #     elif year_from:
+            #         movies = movies.filter(year__gte=year_from)
+            #     else:
+            #         movies = movies.filter(year__lte=year_to)
+
+            if events.count() == 0:
+                messages.info(request, "Sorry, we have no movies matching your criteria. Try once again.")
+            else:
+                cache.set('events_list', events)
+
+            return render(request, 'events/event_search.html', {'object_list': events, 'form': form})
+
+        messages.info(request, 'Please check your form input')
+        return render(request, 'events/event_search.html', {'form': form})
+
+
+class EventDeleteView(LoginRequiredOwnerMixin, UserPassesTestMixin, DeleteView):
+    """Handles event delete view"""
+    model = Event
+    success_url = reverse_lazy('events:owner-events')
+    pk_url_kwarg = 'pk'
+
+
+# Info section
 class FeedbackView(View):
+    """Handles feedback view - sends user coment to app email mailbox."""
     def get(self, request):
         return render(request, 'events/info/leave_feedback.html', {'form': FeedbackForm()})
 
@@ -72,9 +125,9 @@ class FeedbackView(View):
         if form.is_valid():
             print(form.cleaned_data.get('email'))
             try:
-                send_mail('Exam App feedback',
-                          f"{form.cleaned_data.get('comment')}",
-                          f"{form.cleaned_data.get('email')}",
+                send_mail('Event app feedback',
+                          f"{form.cleaned_data.get('comment')}\n",
+                          f"sender: {form.cleaned_data.get('email')}\n",
                           [settings.DEFAULT_FROM_EMAIL],
                           fail_silently=False,
                           )

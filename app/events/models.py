@@ -27,6 +27,8 @@ class Event(models.Model):
     name = models.CharField(unique=True, max_length=256)
     start_date = models.DateTimeField(blank=True)
     end_date = models.DateTimeField(blank=True)
+    # TODO may be implemented as separate 'Address' model in future
+    city = models.CharField(max_length=128, blank=True)
 
     def __str__(self):
         return self.name
