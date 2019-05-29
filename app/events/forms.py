@@ -62,9 +62,11 @@ class EventSearchForm(forms.Form):
     from_date = forms.DateTimeField(
         input_formats=DATE_INPUT_FORMATS,
         widget=DATE_PICKER_WIDGET_FROM,
+        required=False,
     )
 
     to_date = forms.DateTimeField(
         input_formats=DATE_INPUT_FORMATS,
-        widget=DATE_PICKER_WIDGET_TO
+        widget=DATE_PICKER_WIDGET_TO,
+        required=False,
     )

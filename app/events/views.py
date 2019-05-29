@@ -33,7 +33,21 @@ class EventsView(ListView):
         return context
 
 
-class EventOwnerView(LoginRequiredOwnerMixin, UserPassesTestMixin, ListView):
+class EventView(DeleteView):
+    """Handles event detail view"""
+    model = Event
+    template_name = 'events/client/event.html'
+    pk_url_kwarg = 'pk'
+
+    def get_queryset(self, **kwargs):
+        return super().get_queryset(**kwargs).select_related()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class EventsOwnerView(LoginRequiredOwnerMixin, UserPassesTestMixin, ListView):
     """Handles events list view"""
     model = Event
     template_name = 'events/owner/owner_event.html'
@@ -63,7 +77,7 @@ class EventCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
         return redirect('events:owner-events')
 
 
-class EventSearchView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+class EventSearchView(View):
     """Handles search event view"""
     def get(self, request):
         return render(request, 'events/event_search.html', {'form': EventSearchForm()})
@@ -88,13 +102,13 @@ class EventSearchView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
             if city:
                 events = events.filter(city__icontains=city)
 
-            # if year_from or year_to:
-            #     if year_from and year_to:
-            #         movies = movies.filter(year__gte=year_from).filter(year__lte=year_to)
-            #     elif year_from:
-            #         movies = movies.filter(year__gte=year_from)
-            #     else:
-            #         movies = movies.filter(year__lte=year_to)
+            if to_date or from_date:
+                if from_date and to_date:
+                    events = events.filter(start_date__gte=from_date).filter(end_date__lte=to_date)
+                elif from_date:
+                    events = events.filter(start_date__gte=from_date)
+                else:
+                    events = events.filter(end_date__lte=to_date)
 
             if events.count() == 0:
                 messages.info(request, "Sorry, we have no movies matching your criteria. Try once again.")

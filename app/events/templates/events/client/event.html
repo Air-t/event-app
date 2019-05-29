@@ -5,57 +5,46 @@
 
 <div id="first-question" class="card card-shadow">
   <ul class="list-group">
-      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ exam.name }} |  <span class="text-muted">close question creator</span></strong>
-        <span>
-          <button id="question-list" class="btn btn-secondary tab" onclick="javascript:window.location.href='{% url 'core:exam' pk=exam.id %}'; return false;"><img class="light" src="{% static 'webfonts/tasks-solid.svg' %}" width="20" height="20"> List</button>
-          <button id="open-question"class="btn btn-primary tab" name="action" value="delete" type="submit" form="close-question-form"><img class="light" src="{% static 'webfonts/save-regular.svg' %}" width="20" height="20"> Save</button>
-        </span>
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ object.name }} |  <span class="text-muted">event details</span></strong>
+        <span class="text-muted">Starts: {{ object.start_date|date:"D, d, M, Y" }}, Ends: {{ object.end_date|date:"D, d, M, Y" }}</span>
       </li>
   </ul>
 </div>
 
-<form id="close-question-form" method="POST">
-  {% csrf_token %}
-  {{ formset.management_form|crispy }}
-  
   <div class="card card-shadow">
-    <div class="card-body">
-      <div class="row">
-        <div class="col-12 col-md-10">
-          {{ closeform.question|as_crispy_field }}
-        </div>
-        <div class="col-6 col-md-2">
-          {{ closeform.max_points|as_crispy_field }}
-        </div>
-      </div>
+    <div class="card-header">
+      <strong>Description</strong>
     </div>
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {% if object.description %}
+            {{ object.description }}
+          {% else %}
+            No event description yet available.
+          {% endif %}
+        </li>
+    </ul>
   </div>
 
-  <div class="card card-shadow">
-    <div class="card-body justify-content-center">
-
-      {% for form in formset %}
-      <div class="form-row d-flex justify-content-between" style="margin-top:20px; margin-right:0px;">
-        {% for hidden in form.hidden_fields %}
-            {{ hidden }}
+  {% if object.eventseat_set.all %}
+    <div class="card card-shadow">
+      <div class="card-header">
+        <strong>Tickets available</strong>
+      </div>
+      <ul class="list-group">
+        {% for ticket in object.eventseat_set.all %}
+          <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ ticket.get_type_display }}
+            <span>
+              <span class="text-muted">Price: {{ ticket.price }}</span>
+              <span class="badge badge-primary badge-pill">{{ ticket.quantity }}</span>
+            </span>
+          </a>
         {% endfor %}
-        <div class="col">
-          {{ form.choice|as_crispy_field }}
-        </div>
-        <div class="d-flex flex-row justify-content-end">
-          <div class="d-2 d-flex align-items-center">
-            {{ form.is_true|as_crispy_field }}
-          </div>
-          <div class="d-2">
-            <button type="button" class="btn btn-secondary add-form-row tab"><img class="light" src="{% static 'webfonts/plus-circle-solid.svg' %}" width="20" height="20"></button>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
+      </ul>
     </div>
+  {% endif %}
 
-  </div>
-</form>
+
 
 
 {% endblock content %}

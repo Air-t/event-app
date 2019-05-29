@@ -29,15 +29,18 @@ class Event(models.Model):
     end_date = models.DateTimeField(blank=True)
     # TODO may be implemented as separate 'Address' model in future
     city = models.CharField(max_length=128, blank=True)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return self.name
 
 
 class EventSeat(models.Model):
-    type = models.IntegerField(choices=TICKET_TYPES, default=0)
+    type = models.IntegerField(choices=TICKET_TYPES, default=0, unique=True)
     quantity = models.IntegerField(validators=[MinValueValidator(0)])
     price = models.FloatField(validators=[MinValueValidator(0.0)])
+
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
 
 class EventTicket(models.Model):
