@@ -43,7 +43,7 @@
             {% csrf_token %}
             <button class="btn btn-outline-secondary tab" name="action" value="logout" type="submit"><img class="light" src="{% static 'webfonts/sign-out-alt-solid.svg' %}" alt="[X]" width="24" height="24"></button>
           </form>
-          <form class="form-inline" method="get" action="{% url 'events:cart' %}" style="display:inline!important;">
+          <form class="form-inline" method="get" action="{% url 'events:cart' username=request.user.username %}" style="display:inline!important;">
             <button class="btn btn-success tab" name="add" value="item" type="submit"><img class="light" src="{% static 'webfonts/shopping-cart-solid.svg' %}" width="20" height="20"></button>
           </form>
           <a class="navbar-brand" href="{% url 'user:user' %}"><img class="light" src="{% static 'webfonts/user-regular.svg' %}" alt="" width="24" height="24"> {{ request.user.username }}</a>

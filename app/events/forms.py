@@ -1,8 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator
 
-from .models import Event
+from .models import Event, TICKET_TYPES
+
 
 DATE_PICKER_WIDGET_FROM = forms.DateTimeInput(attrs={
     'class': 'form-control datetimepicker-input text-muted',
@@ -41,7 +41,7 @@ class EventForm(forms.ModelForm):
 
     class Meta:
         model = Event
-        fields = ['name', 'start_date', 'end_date', 'city']
+        fields = ['name', 'city', 'start_date', 'end_date', ]
         labels = {
             'name': '',
             'city': '',
@@ -54,6 +54,16 @@ class EventForm(forms.ModelForm):
             'city': forms.TextInput(attrs={'placeholder': _('City'),
                                            }),
         }
+
+
+class EventSeatForm(forms.ModelForm):
+    """Form to create event seats"""
+    type = forms.Select(choices=TICKET_TYPES)
+    quantity = forms.IntegerField(label='', required=True, widget=forms.NumberInput(attrs={
+        'placeholder': 'Qty',
+        'min': '1',
+    }))
+    price = forms.FloatField(required=True, help_text='Price')
 
 
 class EventSearchForm(forms.Form):

@@ -6,24 +6,71 @@
 <div id="first-question" class="card card-shadow">
   <ul class="list-group">
       <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Cart |  <span class="text-muted">item list</span></strong>
+        <form class="form-inline" method="get" action="{% url 'events:events-search' %}" style="display:inline!important;">
+          <button class="btn btn-primary" name="action" value="seatch" type="submit"><img class="light" src="{% static 'webfonts/search-solid.svg' %}" width="20" height="20"></button>
+        </form>
       </li>
   </ul>
 </div>
 
-  <div class="card card-shadow">
-    <div class="card-header">
-      <strong>Items</strong>
-    </div>
+{% if object %}
+<div class="card card-shadow">
+  <div class="card-header">
+    <strong>Tickets in cart</strong>
+  </div>
+  <ul class="list-group">
     <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          {% if object.description %}
-            {{ object.description }}
-          {% else %}
-            No items in cart.
-          {% endif %}
+      {% for ticket in object %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">{{ ticket.seat.get_type_display }}
+          <span class="form-inline">
+            <span class="text-muted">Price: {{ ticket.seat.price }}</span>
+            <form class="form-inline" method="post" action="{% url 'events:delete-ticket' pk=ticket.id %}" style="display:inline!important;">
+              {% csrf_token %}
+              <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
+            </form>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </ul>
+</div>
+
+<div class="card card-shadow">
+  <div class="card-header">
+    <strong>Summary</strong>
+  </div>
+  <ul class="list-group">
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">Tickets count: {{ summary.seat__price__count }}
+          <span class="form-inline">
+            <span class="text-muted">Total price: {{ summary.seat__price__sum }}</span>
+            <form class="form-inline" method="post" action="" style="display:inline!important;">
+              {% csrf_token %}
+              <button class="btn btn-success btn-sm tab" name="proceed" value="proceed" type="submit"><img class="light" src="{% static 'webfonts/euro-sign-solid.svg' %}" width="20" height="20"> Order</button>
+            </form>
+          </span>
         </li>
     </ul>
-  </div>
-
+  </ul>
+</div>
+{% endif %}
 
 {% endblock content %}
+
+
+<ul class="list-group card-shadow">
+  {% if tickets %}
+    <ul class="list-group">
+      {% for ticket in tickets %}
+        {{ ticket.seat__type }}
+        {{ ticket.seat__price__sum }}
+
+        <li class="list-group-item d-flex justify-content-between align-items-center">{{ ticket.seat.get_type_display }}
+          <span class="form-inline">
+            <span class="text-muted">Price: {{ ticket.seat.price }}</span>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</ul>

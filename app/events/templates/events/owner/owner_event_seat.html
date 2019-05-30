@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+  <div class="card card-shadow">
+    <div class="card-header">
+      <strong>Event seat creator</strong>
+    </div>
+    <div class="card-body">
+      <form method="post" action="">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <br>
+        <button class="btn btn-primary" type="submit" name="action" value="commit">Create</button>
+      </form>
+    </div>
+  </div>
+
+  {% if object_list %}
+    <div class="card card-shadow">
+      <div class="card-header">
+        <strong>Events seats</strong>
+      </div>
+      <ul class="list-group">
+        {% for object in object_list %}
+          <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ object.type }}
+            <span>
+              <form class="form-inline" method="post" action="{% url 'events:owner-event-delete' pk=object.id %}" style="display:inline!important;">
+                {% csrf_token %}
+                <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
+              </form>
+            </span>
+          </a>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+{% endblock content %}

@@ -1,28 +1,34 @@
+from datetime import datetime, timezone
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.base import View
-from django.views.generic.edit import CreateView, DeleteView
+from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
 from django.core.cache import cache
 from django.conf import settings
 from django.urls import reverse_lazy
-from django.db.models.signals import pre_save
+from django.core.signals import request_finished
 from django.dispatch import receiver
+from django.db.models import Sum, Count
 
 from .models import Event, EventSeat, EventTicket, TicketReservation
-from .forms import FeedbackForm, EventForm, EventSearchForm, BookTicketForm
+from .forms import FeedbackForm, EventForm, EventSearchForm, BookTicketForm, EventSeatForm
 from .mixins import LoginRequiredOwnerMixin
 
 
-# @receiver(pre_save, sender=EventTicket)
-# def check_limits(sender, **kwargs):
-#     type = sender.type
-#     if sender.objects.count() > YOUR_LIIMIT:
-#         raise PermissionDenied
+User = get_user_model()
 
+
+@receiver(request_finished)
+def remove_unpayed_tickets(sender, **kwargs):
+    """Removes all unpayed tickets and ticket reservation models based on date expire"""
+    tickets = EventTicket.objects.all().filter(is_payed=False)
+    [ticket.delete() for ticket in tickets if ticket.ticketreservation.date_expired < datetime.now(timezone.utc)]
 
 
 def goto(request):
@@ -72,6 +78,21 @@ class EventsOwnerView(LoginRequiredOwnerMixin, UserPassesTestMixin, ListView):
         return context
 
 
+class EventOwnerView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
+    """Handles event detail view"""
+    model = Event
+    template_name = 'events/owner/owner_event_seat.html'
+    pk_url_kwarg = 'pk'
+
+    def get_queryset(self):
+        return Event.objects.get(pk=self.pk_url_kwarg).eventseat_set.all().order_by('type')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = EventSeatForm()
+        return context
+
+
 class EventCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
     """Handles event create view"""
     model = Event
@@ -90,6 +111,7 @@ class EventCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
 
 class EventSearchView(View):
     """Handles search event view"""
+
     def get(self, request):
         return render(request, 'events/event_search.html', {'form': EventSearchForm()})
 
@@ -165,14 +187,30 @@ class AddToCartView(LoginRequiredMixin, View):
 
 class CartView(LoginRequiredMixin, View):
     """Handles cart view"""
-    def get(self, request):
+
+    def get(self, request, username):
+        user = get_object_or_404(User, pk=request.user.id)
+        summary = user.eventticket_set.aggregate(Count('seat__price'), Sum('seat__price'))
+        return render(request, 'events/client/cart.html', {'object': user.eventticket_set.all().order_by('seat__type'),
+                                                           'summary': summary})
+
+    def post(self, request, username):
+        user = get_object_or_404(User, pk=request.user.id)
         return render(request, 'events/client/cart.html')
 
+
+class CartDeleteItemView(LoginRequiredMixin, View):
+    """Handles ticket/reservation delete view"""
+    def post(self, request, pk):
+        ticket = get_object_or_404(EventTicket, pk=pk)
+        ticket.delete()
+        return redirect('events:cart', username=request.user.username)
 
 
 # Info section
 class FeedbackView(View):
-    """Handles feedback view - sends user coment to app email mailbox."""
+    """Handles feedback view - sends user comment to app email mailbox."""
+
     def get(self, request):
         return render(request, 'events/info/leave_feedback.html', {'form': FeedbackForm()})
 

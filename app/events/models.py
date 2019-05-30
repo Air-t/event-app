@@ -54,6 +54,7 @@ class EventTicket(models.Model):
     """Event ticket model"""
     date_bought = models.DateTimeField(default=datetime.now)
     is_payed = models.BooleanField(default=False)
+    is_in_payment = models.BooleanField(default=False)
 
     seat = models.ForeignKey(EventSeat, on_delete=models.CASCADE)
     user = models.ForeignKey(User, default=None, blank=True, on_delete=models.CASCADE)
