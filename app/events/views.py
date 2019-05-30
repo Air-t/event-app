@@ -9,10 +9,20 @@ from django.core.mail import send_mail
 from django.core.cache import cache
 from django.conf import settings
 from django.urls import reverse_lazy
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
-from .models import Event
-from .forms import FeedbackForm, EventForm, EventSearchForm
+from .models import Event, EventSeat, EventTicket, TicketReservation
+from .forms import FeedbackForm, EventForm, EventSearchForm, BookTicketForm
 from .mixins import LoginRequiredOwnerMixin
+
+
+# @receiver(pre_save, sender=EventTicket)
+# def check_limits(sender, **kwargs):
+#     type = sender.type
+#     if sender.objects.count() > YOUR_LIIMIT:
+#         raise PermissionDenied
+
 
 
 def goto(request):
@@ -44,6 +54,7 @@ class EventView(DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['form'] = BookTicketForm()
         return context
 
 
@@ -126,6 +137,36 @@ class EventDeleteView(LoginRequiredOwnerMixin, UserPassesTestMixin, DeleteView):
     model = Event
     success_url = reverse_lazy('events:owner-events')
     pk_url_kwarg = 'pk'
+
+
+class AddToCartView(LoginRequiredMixin, View):
+    """Handles add to cart view"""
+
+    def post(self, request, pk):
+        seat = get_object_or_404(EventSeat, pk=pk)
+        form = BookTicketForm(request.POST)
+        event_id = int(request.POST.get('event_id'))
+        print(event_id)
+        if form.is_valid():
+            quantity = form.cleaned_data.get('quantity')
+            for i in range(quantity):
+                try:
+                    ticket = EventTicket.objects.create(seat=seat, user=request.user)
+                    ticket.save()
+                    reservation = TicketReservation.objects.create(ticket=ticket)
+                    reservation.save()
+                except Exception as e:
+                    print(e)
+                    messages.warning(request, "Could not book tickets. Please try again later.")
+                    return redirect('events:event', pk=event_id)
+        return redirect('events:event', pk=event_id)
+
+
+class CartView(LoginRequiredMixin, View):
+    """Handles cart view"""
+    def get(self, request):
+        return render(request, 'events/client/cart.html')
+
 
 
 # Info section

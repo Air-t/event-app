@@ -41,17 +41,20 @@
         {% if request.user.username %}
           <form method="post" style="display:inline!important;" action="{% url 'user:logout' %}">
             {% csrf_token %}
-            <button class="btn btn-outline-secondary" name="action" value="logout" type="submit"><img class="light" src="{% static 'webfonts/sign-out-alt-solid.svg' %}" alt="[X]" width="24" height="24"></button>
+            <button class="btn btn-outline-secondary tab" name="action" value="logout" type="submit"><img class="light" src="{% static 'webfonts/sign-out-alt-solid.svg' %}" alt="[X]" width="24" height="24"></button>
+          </form>
+          <form class="form-inline" method="get" action="{% url 'events:cart' %}" style="display:inline!important;">
+            <button class="btn btn-success tab" name="add" value="item" type="submit"><img class="light" src="{% static 'webfonts/shopping-cart-solid.svg' %}" width="20" height="20"></button>
           </form>
           <a class="navbar-brand" href="{% url 'user:user' %}"><img class="light" src="{% static 'webfonts/user-regular.svg' %}" alt="" width="24" height="24"> {{ request.user.username }}</a>
         {% else %}
           <a class="navbar-brand" href="{% url 'user:login' %}">Login</a>
           <a class="navbar-brand" href="{% url 'user:signup' %}">Signup</a>
         {% endif %}
-        <form class="form-inline my-2 my-lg-0">
+        <!-- <form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="search" placeholder="Search Event" aria-label="Search">
           <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><img class="light" src="{% static 'webfonts/search-solid.svg' %}" width="20" height="20"></button>
-        </form>
+        </form> -->
       </div>
     </nav>
 

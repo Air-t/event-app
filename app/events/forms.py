@@ -1,21 +1,21 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator
 
 from .models import Event
 
-
 DATE_PICKER_WIDGET_FROM = forms.DateTimeInput(attrs={
-            'class': 'form-control datetimepicker-input text-muted',
-            'data-target': '#datetimepicker1',
-            'width': '100px',
-            'placeholder': 'Start date',
-        })
+    'class': 'form-control datetimepicker-input text-muted',
+    'data-target': '#datetimepicker1',
+    'width': '100px',
+    'placeholder': 'Start date',
+})
 DATE_PICKER_WIDGET_TO = forms.DateTimeInput(attrs={
-            'class': 'form-control datetimepicker-input text-muted',
-            'data-target': '#datetimepicker1',
-            'width': '100px',
-            'placeholder': 'End date',
-        })
+    'class': 'form-control datetimepicker-input text-muted',
+    'data-target': '#datetimepicker1',
+    'width': '100px',
+    'placeholder': 'End date',
+})
 DATE_INPUT_FORMATS = ['%d/%m/%Y %H:%M']
 
 
@@ -70,3 +70,11 @@ class EventSearchForm(forms.Form):
         widget=DATE_PICKER_WIDGET_TO,
         required=False,
     )
+
+
+class BookTicketForm(forms.Form):
+    quantity = forms.IntegerField(label='', required=True, widget=forms.NumberInput(attrs={
+        'placeholder': 'Quantity',
+        'min': '1',
+        'error_messages': _('This value must be at least 1.'),
+    }))

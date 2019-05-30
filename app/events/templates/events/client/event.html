@@ -32,13 +32,22 @@
         <strong>Tickets available</strong>
       </div>
       <ul class="list-group">
-        {% for ticket in object.eventseat_set.all %}
-          <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ ticket.get_type_display }}
-            <span>
-              <span class="text-muted">Price: {{ ticket.price }}</span>
-              <span class="badge badge-primary badge-pill">{{ ticket.quantity }}</span>
+        {% for seat in object.eventseat_set.all %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">{{ seat.get_type_display }}
+            <span class="form-inline">
+              <span class="text-muted">Price: {{ seat.price }}</span>
+              <span class="badge badge-primary badge-pill tab">{{ seat.tickets_available }}</span> /
+              <span class="badge badge-primary badge-pill ">{{ seat.quantity }}</span>
+              <form class="form-inline tab" method="post" action="{% url 'events:add-ticket' pk=seat.id %}" style="display:inline!important;">
+                {% csrf_token %}
+                <span class="form-inline">
+                  <input type="hidden" name="event_id" value="{{ object.id }}">
+                  {{ form.quantity|as_crispy_field }}
+                  <button class="btn btn-success btn-sm tab" name="submit" value="submit" type="submit"><img class="light" src="{% static 'webfonts/shopping-cart-solid.svg' %}" width="20" height="20"> Add</button>
+                </span>
+              </form>
             </span>
-          </a>
+          </li>
         {% endfor %}
       </ul>
     </div>

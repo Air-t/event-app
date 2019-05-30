@@ -1,0 +1,21 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>Item |  <span class="text-muted">add item to cart</span></strong>
+      </li>
+  </ul>
+</div>
+
+<form class="form-inline" method="post" action="" style="display:inline!important;">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <hr>
+  <button class="btn btn-success" name="submit" value="submit" type="submit"><img class="light" src="{% static 'webfonts/shopping-cart-solid.svg' %}" width="20" height="20"> Add</button>
+</form>
+
+
+{% endblock content %}

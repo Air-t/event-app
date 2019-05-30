@@ -6,7 +6,6 @@ from user.models import User, UserProfile
 
 from events.utils import now_plus_15_min
 
-
 TICKET_TYPES = (
     (0, 'Regular'),
     (1, 'Discount'),
@@ -36,24 +35,35 @@ class Event(models.Model):
 
 
 class EventSeat(models.Model):
+    """Event seat model available"""
     type = models.IntegerField(choices=TICKET_TYPES, default=0, unique=True)
     quantity = models.IntegerField(validators=[MinValueValidator(0)])
     price = models.FloatField(validators=[MinValueValidator(0.0)])
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"{self.type}: {self.tickets_available}/{self.quantity}"
+
+    @property
+    def tickets_available(self):
+        return self.quantity - EventTicket.objects.all().filter(seat__type=self.type).count()
+
+    @property
+    def tickets_price_by_type(self):
+        return self.price * EventTicket.objects.all().filter(seat__type=self.type).count()
+
 
 class EventTicket(models.Model):
     """Event ticket model"""
-    price_bought = models.FloatField(validators=[MinValueValidator(0.0)])
     date_bought = models.DateTimeField(default=datetime.now)
     is_payed = models.BooleanField(default=False)
 
-    seat = models.OneToOneField(EventSeat, on_delete=models.CASCADE)
-    user = models.OneToOneField(User, default=None, blank=True, on_delete=models.CASCADE)
+    seat = models.ForeignKey(EventSeat, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, default=None, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.type}, quantity: {self.quantity}"
+        return f"{self.seat}, {self.user.username}"
 
 
 class TicketReservation(models.Model):

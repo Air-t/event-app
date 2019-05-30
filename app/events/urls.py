@@ -1,6 +1,8 @@
 from django.urls import path
 
 from .views import EventsView, EventsOwnerView, EventCreateView, EventDeleteView, EventSearchView, EventView
+from .views import AddToCartView, CartView
+
 
 
 app_name = 'events'
@@ -13,5 +15,7 @@ urlpatterns = [
     path('manage/events/create/', EventCreateView.as_view(), name='owner-event-create'),
     path('manage/events/delete/<int:pk>/', EventDeleteView.as_view(), name='owner-event-delete'),
     path('events/search/', EventSearchView.as_view(), name='events-search'),
+    path('cart/', CartView.as_view(), name='cart'),
+    path('cart/add/<int:pk>/', AddToCartView.as_view(), name='add-ticket'),
 
 ]
