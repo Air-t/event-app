@@ -43,7 +43,7 @@ class EventsView(ListView):
         return context
 
 
-class EventView(DeleteView):
+class EventView(DetailView):
     """Handles event detail view"""
     model = Event
     template_name = 'events/client/event.html'
@@ -144,21 +144,22 @@ class AddToCartView(LoginRequiredMixin, View):
 
     def post(self, request, pk):
         seat = get_object_or_404(EventSeat, pk=pk)
-        form = BookTicketForm(request.POST)
+        form = BookTicketForm(data=request.POST)
         event_id = int(request.POST.get('event_id'))
-        print(event_id)
         if form.is_valid():
             quantity = form.cleaned_data.get('quantity')
-            for i in range(quantity):
-                try:
-                    ticket = EventTicket.objects.create(seat=seat, user=request.user)
-                    ticket.save()
-                    reservation = TicketReservation.objects.create(ticket=ticket)
-                    reservation.save()
-                except Exception as e:
-                    print(e)
-                    messages.warning(request, "Could not book tickets. Please try again later.")
-                    return redirect('events:event', pk=event_id)
+            if quantity <= seat.tickets_available:
+                for i in range(quantity):
+                    try:
+                        ticket = EventTicket.objects.create(seat=seat, user=request.user)
+                        ticket.save()
+                        reservation = TicketReservation.objects.create(ticket=ticket)
+                        reservation.save()
+                    except Exception as e:
+                        print(e)
+                        messages.warning(request, "Could not book tickets. Please try again later.")
+            else:
+                messages.warning(request, "Insufficient ticket quantity.")
         return redirect('events:event', pk=event_id)
 
 

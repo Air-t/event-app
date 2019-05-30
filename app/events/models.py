@@ -49,10 +49,6 @@ class EventSeat(models.Model):
     def tickets_available(self):
         return self.quantity - EventTicket.objects.all().filter(seat__type=self.type).count()
 
-    @property
-    def tickets_price_by_type(self):
-        return self.price * EventTicket.objects.all().filter(seat__type=self.type).count()
-
 
 class EventTicket(models.Model):
     """Event ticket model"""
@@ -64,6 +60,11 @@ class EventTicket(models.Model):
 
     def __str__(self):
         return f"{self.seat}, {self.user.username}"
+
+    @property
+    def tickets_price_by_type(self):
+        return self.seat.price * EventTicket.objects.all().filter(user=self.user).filter(
+            seat__type=self.seat.type).count()
 
 
 class TicketReservation(models.Model):

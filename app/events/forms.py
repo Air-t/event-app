@@ -74,7 +74,10 @@ class EventSearchForm(forms.Form):
 
 class BookTicketForm(forms.Form):
     quantity = forms.IntegerField(label='', required=True, widget=forms.NumberInput(attrs={
-        'placeholder': 'Quantity',
+        'placeholder': 'Qty',
         'min': '1',
-        'error_messages': _('This value must be at least 1.'),
     }))
+
+    def __init__(self, max_qty=None, *args, **kwargs):
+        super(BookTicketForm, self).__init__(*args, **kwargs)
+        self.fields['quantity'].widget.attrs['max'] = max_qty
