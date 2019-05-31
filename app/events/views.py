@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.views.generic.base import View
-from django.views.generic.edit import CreateView, DeleteView, UpdateView
+from django.views.generic.edit import CreateView, DeleteView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.core.mail import send_mail
@@ -84,13 +84,26 @@ class EventOwnerView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
     template_name = 'events/owner/owner_event_seat.html'
     pk_url_kwarg = 'pk'
 
-    def get_queryset(self):
-        return Event.objects.get(pk=self.pk_url_kwarg).eventseat_set.all().order_by('type')
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = EventSeatForm()
         return context
+
+
+class SeatCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
+    """Handles seat create view"""
+    def post(self, request, pk):
+        event = get_object_or_404(Event, pk=pk)
+        form = EventSeatForm(data=request.POST)
+        if form.is_valid():
+            seat = form.save(commit=False)
+            seat.event = event
+            seat.save()
+            messages.success(request, f"You have created new seat - {seat.type}")
+        else:
+            messages.warning(self.request, "An error has occurred. Seat not created.")
+        return redirect('events:owner-event', pk=pk)
+
 
 
 class EventCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):

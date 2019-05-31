@@ -3,38 +3,46 @@
 {% load crispy_forms_tags %}
 {% load static %}
 
+<div id="first-question" class="card card-shadow">
+  <ul class="list-group">
+      <li class="list-group-item d-flex justify-content-between align-items-center"><strong>{{ object.name }} |  <span class="text-muted">event details</span></strong>
+        <span class="text-muted">Starts: {{ object.start_date|date:"D, d, M, Y" }}, Ends: {{ object.end_date|date:"D, d, M, Y" }}</span>
+      </li>
+  </ul>
+</div>
+
+<div class="card card-shadow">
+  <div class="card-header">
+    <strong>Event seat creator</strong>
+  </div>
+  <div class="card-body">
+    <form method="post" action="{% url 'events:owner-event-seat-create' pk=object.id %}">
+      <input type="hidden" name="event_id" value="{{ object.id }}">
+      {% csrf_token %}
+      {{ form|crispy }}
+      <br>
+      <button class="btn btn-primary" type="submit" name="action" value="commit">Create</button>
+    </form>
+  </div>
+</div>
+
+  {% if object.eventseat_set.all %}
   <div class="card card-shadow">
     <div class="card-header">
-      <strong>Event seat creator</strong>
+      <strong>Seats available</strong>
     </div>
-    <div class="card-body">
-      <form method="post" action="">
-        {% csrf_token %}
-        {{ form|crispy }}
-        <br>
-        <button class="btn btn-primary" type="submit" name="action" value="commit">Create</button>
-      </form>
-    </div>
+    <ul class="list-group">
+      {% for seat in object.eventseat_set.all %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">{{ seat.get_type_display }}
+          <span class="form-inline">
+            <span class="text-muted">Price: {{ seat.price }}</span>
+            <span class="badge badge-primary badge-pill tab">{{ seat.tickets_available }}</span> /
+            <span class="badge badge-primary badge-pill ">{{ seat.quantity }}</span>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
   </div>
-
-  {% if object_list %}
-    <div class="card card-shadow">
-      <div class="card-header">
-        <strong>Events seats</strong>
-      </div>
-      <ul class="list-group">
-        {% for object in object_list %}
-          <a class="list-group-item d-flex justify-content-between align-items-center" href="">{{ object.type }}
-            <span>
-              <form class="form-inline" method="post" action="{% url 'events:owner-event-delete' pk=object.id %}" style="display:inline!important;">
-                {% csrf_token %}
-                <button class="btn btn-secondary btn-sm tab delete" name="delete" value="delete" type="submit"><img class="light" src="{% static 'webfonts/trash-restore-solid.svg' %}" width="20" height="20"></button>
-              </form>
-            </span>
-          </a>
-        {% endfor %}
-      </ul>
-    </div>
   {% endif %}
 
 {% endblock content %}

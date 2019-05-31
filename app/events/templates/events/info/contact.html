@@ -1,6 +1,14 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
 {% block content %}
+{% load crispy_forms_tags %}
 
-<p>Contact page</p>
+<div class="card card-shadow">
+  <div class="card-body">
+    <h2 class="card-title">Contact</h2>
+    <a class="card-text" href="https://github.com/Air-t">
+      GitHub account
+    </a>
+  </div>
+</div>
 
-{% endblock content %}
+{% endblock %}

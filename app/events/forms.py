@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from .models import Event, TICKET_TYPES
+from .models import Event, EventSeat, TICKET_TYPES
 
 
 DATE_PICKER_WIDGET_FROM = forms.DateTimeInput(attrs={
@@ -63,7 +63,16 @@ class EventSeatForm(forms.ModelForm):
         'placeholder': 'Qty',
         'min': '1',
     }))
-    price = forms.FloatField(required=True, help_text='Price')
+    price = forms.FloatField(required=True, help_text='Price', label='')
+
+    class Meta:
+        model = EventSeat
+        fields = ['type', 'quantity', 'price']
+        labels = {
+            'type': '',
+            'quantity': '',
+            'price': '',
+        }
 
 
 class EventSearchForm(forms.Form):

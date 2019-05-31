@@ -16,6 +16,25 @@
 {% if object %}
 <div class="card card-shadow">
   <div class="card-header">
+    <strong>Summary</strong>
+  </div>
+  <ul class="list-group">
+    <ul class="list-group">
+        <li class="list-group-item d-flex justify-content-between align-items-center">Tickets count: {{ summary.seat__price__count }}
+          <span class="form-inline">
+            <span class="text-muted">Total price: {{ summary.seat__price__sum }}</span>
+            <form class="form-inline" method="post" action="" style="display:inline!important;">
+              {% csrf_token %}
+              <button class="btn btn-success btn-sm tab" name="proceed" value="proceed" type="submit"><img class="light" src="{% static 'webfonts/euro-sign-solid.svg' %}" width="20" height="20"> Order</button>
+            </form>
+          </span>
+        </li>
+    </ul>
+  </ul>
+</div>
+
+<div class="card card-shadow">
+  <div class="card-header">
     <strong>Tickets in cart</strong>
   </div>
   <ul class="list-group">
@@ -34,43 +53,6 @@
     </ul>
   </ul>
 </div>
-
-<div class="card card-shadow">
-  <div class="card-header">
-    <strong>Summary</strong>
-  </div>
-  <ul class="list-group">
-    <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center">Tickets count: {{ summary.seat__price__count }}
-          <span class="form-inline">
-            <span class="text-muted">Total price: {{ summary.seat__price__sum }}</span>
-            <form class="form-inline" method="post" action="" style="display:inline!important;">
-              {% csrf_token %}
-              <button class="btn btn-success btn-sm tab" name="proceed" value="proceed" type="submit"><img class="light" src="{% static 'webfonts/euro-sign-solid.svg' %}" width="20" height="20"> Order</button>
-            </form>
-          </span>
-        </li>
-    </ul>
-  </ul>
-</div>
 {% endif %}
 
 {% endblock content %}
-
-
-<ul class="list-group card-shadow">
-  {% if tickets %}
-    <ul class="list-group">
-      {% for ticket in tickets %}
-        {{ ticket.seat__type }}
-        {{ ticket.seat__price__sum }}
-
-        <li class="list-group-item d-flex justify-content-between align-items-center">{{ ticket.seat.get_type_display }}
-          <span class="form-inline">
-            <span class="text-muted">Price: {{ ticket.seat.price }}</span>
-          </span>
-        </li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-</ul>

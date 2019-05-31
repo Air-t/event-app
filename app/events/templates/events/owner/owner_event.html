@@ -39,7 +39,7 @@
       </div>
       <ul class="list-group">
         {% for object in object_list %}
-          <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'events:event' pk=object.id %}">{{ object.name }}
+          <a class="list-group-item d-flex justify-content-between align-items-center" href="{% url 'events:owner-event' pk=object.id %}">{{ object.name }}
             <span>
               <form class="form-inline" method="post" action="{% url 'events:owner-event-delete' pk=object.id %}" style="display:inline!important;">
                 {% csrf_token %}
