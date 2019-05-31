@@ -1,10 +1,12 @@
 # event-app
 
-App to handle CRUD operations for events with payment methods available
+App to handle CRUD operations for events with payment methods available.
+Allows 'owner' to manage events. Clients have its own interface to browse and
+book tickets available in system.
 
 ## Installation
 
-Setup virtual envirnoment [virtualenv](https://virtualenv.pypa.io/en/latest/installation/)
+Setup virtual environment [virtualenv](https://virtualenv.pypa.io/en/latest/installation/)
 
 Use at least Python 3.6.
 
@@ -17,15 +19,20 @@ For the simplicity SQLite database is used. Feel free to setup Postgres/MSQL or 
 Crate necessary initial django database setup:
 
 ```bash
-python3 manage.py loaddata makemigrations
-python3 manage.py loaddata migrate
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py superuser <username> <email> <password>
+python3 manage.py create_owner <username> <email> <password>
 ```
 
 
-Add some dummy data to ses how's it works:
+If you would like to have application filed with random data, populate it wit command:
 ```bash
 python3 manage.py loaddata .fixtures/data.json
 ```
+
+## Notes
+Payment procedure and methods not available yet.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
@@ -35,3 +42,4 @@ Please make sure to update tests as appropriate.
 ## Author
 
 Air-t
+
