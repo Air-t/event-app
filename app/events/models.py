@@ -36,11 +36,14 @@ class Event(models.Model):
 
 class EventSeat(models.Model):
     """Event seat model available"""
-    type = models.IntegerField(choices=TICKET_TYPES, default=0, unique=True)
+    type = models.IntegerField(choices=TICKET_TYPES, default=0)
     quantity = models.IntegerField(validators=[MinValueValidator(0)])
     price = models.FloatField(validators=[MinValueValidator(0.0)])
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ['type', 'event']
 
     def __str__(self):
         return f"{self.type}: {self.tickets_available}/{self.quantity}"

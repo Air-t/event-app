@@ -20,7 +20,6 @@ from .models import Event, EventSeat, EventTicket, TicketReservation
 from .forms import FeedbackForm, EventForm, EventSearchForm, BookTicketForm, EventSeatForm
 from .mixins import LoginRequiredOwnerMixin
 
-
 User = get_user_model()
 
 
@@ -92,18 +91,21 @@ class EventOwnerView(LoginRequiredOwnerMixin, UserPassesTestMixin, DetailView):
 
 class SeatCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, View):
     """Handles seat create view"""
+
     def post(self, request, pk):
         event = get_object_or_404(Event, pk=pk)
         form = EventSeatForm(data=request.POST)
         if form.is_valid():
-            seat = form.save(commit=False)
-            seat.event = event
-            seat.save()
-            messages.success(request, f"You have created new seat - {seat.type}")
+            try:
+                seat = form.save(commit=False)
+                seat.event = event
+                seat.save()
+                messages.success(request, f"You have created new seat")
+            except Exception as e:
+                messages.warning(request, f"This type of tickets already exists.")
         else:
             messages.warning(self.request, "An error has occurred. Seat not created.")
         return redirect('events:owner-event', pk=pk)
-
 
 
 class EventCreateView(LoginRequiredOwnerMixin, UserPassesTestMixin, CreateView):
@@ -214,6 +216,7 @@ class CartView(LoginRequiredMixin, View):
 
 class CartDeleteItemView(LoginRequiredMixin, View):
     """Handles ticket/reservation delete view"""
+
     def post(self, request, pk):
         ticket = get_object_or_404(EventTicket, pk=pk)
         ticket.delete()
