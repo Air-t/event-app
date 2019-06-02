@@ -6,6 +6,7 @@ from user.models import User, UserProfile
 
 from events.utils import now_plus_15_min
 
+
 TICKET_TYPES = (
     (0, 'Regular'),
     (1, 'Discount'),
@@ -50,7 +51,9 @@ class EventSeat(models.Model):
 
     @property
     def tickets_available(self):
-        return self.quantity - EventTicket.objects.all().filter(seat__type=self.type).count()
+        return self.quantity - EventTicket.objects.all()\
+            .filter(seat__event=self.event)\
+            .filter(seat__type=self.type).count()
 
 
 class EventTicket(models.Model):
@@ -67,8 +70,23 @@ class EventTicket(models.Model):
 
     @property
     def tickets_price_by_type(self):
-        return self.seat.price * EventTicket.objects.all().filter(user=self.user).filter(
+        return sum([ticket.seat.price
+                    for ticket in EventTicket.objects.all().filter(user=self.user).filter(seat__type=self.seat.type)])
+
+    @property
+    def tickets_count_by_type(self):
+        return EventTicket.objects.all().filter(user=self.user).filter(
             seat__type=self.seat.type).count()
+
+    @property
+    def tickets_price_by_event(self):
+        return sum([ticket.seat.price
+                    for ticket in EventTicket.objects.all().filter(user=self.user).filter(seat__event=self.seat.event)])
+
+    @property
+    def tickets_count_by_event(self):
+        return EventTicket.objects.all().filter(user=self.user).filter(
+            seat__event=self.seat.event).count()
 
 
 class TicketReservation(models.Model):

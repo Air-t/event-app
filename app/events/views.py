@@ -26,7 +26,8 @@ User = get_user_model()
 @receiver(request_finished)
 def remove_unpayed_tickets(sender, **kwargs):
     """Removes all unpayed tickets and ticket reservation models based on date expire"""
-    tickets = EventTicket.objects.all().filter(is_payed=False)
+    # TODO use sheduler instead sigman triggered in request_finished
+    tickets = EventTicket.objects.all().filter(is_payed=False).filter(is_in_payment=False)
     [ticket.delete() for ticket in tickets if ticket.ticketreservation.date_expired < datetime.now(timezone.utc)]
 
 
@@ -42,10 +43,6 @@ class EventsView(ListView):
 
     def get_queryset(self):
         return Event.objects.all().order_by('name')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
 
 
 class EventView(DetailView):
@@ -206,8 +203,13 @@ class CartView(LoginRequiredMixin, View):
     def get(self, request, username):
         user = get_object_or_404(User, pk=request.user.id)
         summary = user.eventticket_set.aggregate(Count('seat__price'), Sum('seat__price'))
+        user_tickets = EventTicket.objects.all().filter(user=user)
+        user_summary_by_ticket_event = user_tickets.distinct('seat__event__name')
+        user_summary_by_ticket_type = user_tickets.distinct('seat__type')
         return render(request, 'events/client/cart.html', {'object': user.eventticket_set.all().order_by('seat__type'),
-                                                           'summary': summary})
+                                                           'summary': summary,
+                                                           'events': user_summary_by_ticket_event,
+                                                           'types': user_summary_by_ticket_type})
 
     def post(self, request, username):
         user = get_object_or_404(User, pk=request.user.id)

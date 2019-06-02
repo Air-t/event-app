@@ -14,13 +14,13 @@
 </div>
 
 {% if object %}
-<div class="card card-shadow">
+<div class="card card-shadow text-white bg-secondary">
   <div class="card-header">
-    <strong>Summary</strong>
+    <strong>Summary | </strong>total
   </div>
   <ul class="list-group">
     <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center">Tickets count: {{ summary.seat__price__count }}
+        <li class="list-group-item d-flex justify-content-between align-items-center text-muted">Tickets count: {{ summary.seat__price__count }}
           <span class="form-inline">
             <span class="text-muted">Total price: {{ summary.seat__price__sum }}</span>
             <form class="form-inline" method="post" action="" style="display:inline!important;">
@@ -33,6 +33,40 @@
   </ul>
 </div>
 
+<div class="card card-shadow text-white bg-secondary">
+  <div class="card-header">
+    <strong>Summary | </strong>tickets by event
+  </div>
+  <ul class="list-group">
+    <ul class="list-group">
+      {% for ticket in events %}
+        <li class="list-group-item d-flex justify-content-between align-items-center text-muted">{{ ticket.seat.event.name }} | Tickets count: {{ ticket.tickets_count_by_event }}
+          <span class="form-inline">
+            <span class="text-muted">Total price: {{ ticket.tickets_price_by_event }}</span>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </ul>
+</div>
+
+<div class="card card-shadow text-white bg-secondary">
+  <div class="card-header">
+    <strong>Summary | </strong>tickets by ticket type
+  </div>
+  <ul class="list-group">
+    <ul class="list-group">
+      {% for ticket in types %}
+        <li class="list-group-item d-flex justify-content-between align-items-center text-muted">{{ ticket.seat.get_type_display }} | Tickets count: {{ ticket.tickets_count_by_type }}
+          <span class="form-inline">
+            <span class="text-muted">Total price: {{ ticket.tickets_price_by_type }}</span>
+          </span>
+        </li>
+      {% endfor %}
+    </ul>
+  </ul>
+</div>
+
 <div class="card card-shadow">
   <div class="card-header">
     <strong>Tickets in cart</strong>
@@ -40,7 +74,7 @@
   <ul class="list-group">
     <ul class="list-group">
       {% for ticket in object %}
-        <li class="list-group-item d-flex justify-content-between align-items-center">{{ ticket.seat.get_type_display }}
+        <li class="list-group-item d-flex justify-content-between align-items-center">{{ ticket.seat.event.name }} | {{ ticket.seat.get_type_display }}
           <span class="form-inline">
             <span class="text-muted">Price: {{ ticket.seat.price }}</span>
             <form class="form-inline" method="post" action="{% url 'events:delete-ticket' pk=ticket.id %}" style="display:inline!important;">
